@@ -1,0 +1,100 @@
+DICCIONARIO DE DOCKER
+
+//CONTENEDORES
+docker run => descarga y arranca una imagen en un contenedor
+
+docker run -d nombre_imagen=> segundo plano
+
+docker ps => contenedores que estan en marcha/encendida
+
+docker run -d --name bullsye_container postgres:bullseye => : es para especificar que tag vamos a installar y el --name me permite personalizar el nombre de mi contenedor
+
+docker ps -a => me enlista contenedores activos e inactivos
+
+docker ps -q => enlista id de contenedores
+
+docker rm id => elimino un solo contenedor
+
+docker rm id id name => eliminar varios contenedores por id o nombre
+
+docker rm -f id => eliminar de manera forzada un contenedor
+
+docker rm => Eliminar conjunto de contenedores
+
+docker stop id => para apagar un contenedor
+
+docker stop $(docker ps -q) => pauso todos los contenedores activos
+
+docker start id => para encender un contenedor
+
+docker restart id => reinicia un contenedor
+
+docker exec -it id sh => i -  sesion iterativa, t- emular una terminar
+
+docker logs id => informacion que emite un contenedor
+
+docker rm $(docker ps --filter status=exited -q) => Elimina todos los contenedors que esten apagados
+
+docker rename nombre_contenedor nuevo_nombre  => renombrar un contenedor
+
+docker stast=> visualizar estadisticas de los contenedores
+
+
+//IMAGENES
+
+docker images => permite enlistar todas las imagenes que se encuentran en mi maquina
+
+docker rmi id => elimina una imagen 
+
+docker rmi -f id => eliminar una imagen de forma forzada
+
+docker rmi $(docker images) => eliminar todas las imagenes cuando su contenedor este apagado
+
+docker search nombre_de_la_imagen => Buscar imagenes desde la terminar, --filter - para filtrar segun lo que necesites --limit - para un limite imagenes
+
+docker save nombre_imagen > nombre_guardar.tar => me permite almacenarla como un fichero comprimido.
+
+docker load < ruta_archivo/nombre_archivo.tar => importar una imagen de un fichero .tar
+
+
+//DOCKERFILE => para crear imagenes personalizada
+
+FROM => imagen base para crear mi imagen, imagen de alpine ocupa menos espacio que otra imagen
+
+WORKDIR /app => espacio de trabajo donde trabajara el contenedor se creara una carpeta llamada app
+
+COPY.. => copiara todo los archivos que esten en la misma altura del dockerfile hacia el WORKDIR
+
+RUN yarn install --production => compilo el codigo para produccion
+
+CMD ["node","/app/src/index.js"] => ejecuta comandos ejemplo node y el fichero que levanta la aplicacion 
+
+//EJEMPLO
+
+FROM node:12.22.1-alpine3.11
+
+WORKDIR /app
+COPY . .
+RUN yarn install --production
+
+CMD ["node", "/app/src/index.js"]
+
+//
+
+docker build -t my_app . => para contruir una nueva imagen personalizada el punto hace referencia donde se encuentra el archivo del dockerfile
+
+docker run -dp 3000:3000 my_app => para correr en un contenedor nuestra imagen personalizada, el -p expone los puertos ejemplo puerto 3000 de docker al 3000 de mi maquina 3000:3000
+
+docker run -v /home/everto/Documentos/app/etc:/etc/todos -dp 3000:3000 my_app => creo volumenes en local con la finalidad de evitar que se pierda la informacion manejada en el docker.
+
+docker run -v /home/everto/Documentos/app/etc:/etc/todos -dp 3000:3000 -v /home/everto/Documentos/app/src:/app/src my_app => el segundo volumen agregado es para compartir el proyecto a docker y a local y me permitar crear cambios en tiempo real.
+
+NOTA: es importante volver a rescontruir la imagen al momento que hagamos cambios y terminemos el comando => docker build -t my_app:v2 . - el v2 nos indica la version que hemos cambiado
+
+//DOCKER HUB 
+
+docker login => si no estas usando docker hub de escritorio puedes loggearte desde la terminal
+
+docker tag 4786cb757e92 efariasd/my_app:v2 => luego debes crear un tag nuevo con el id de tu imagen 
+
+docker push efariasd/my_app:v2 => con el push enviamos a nuestro docker hub la imagen es importante colocar el tag creado anteriormente
